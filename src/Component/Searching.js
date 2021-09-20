@@ -4,11 +4,9 @@ import { sortMovieData, sortCharacterData, byNameInclude, byNameExclude, byName,
 
 const Searching = () => {
     const dispatch = useDispatch();
-
     const filter = useSelector((state) => state.filter)
     const selected = useSelector((state) => state.selected)
-
-
+    
     const onValueChange = (e) => {
         dispatch(filters(e.target.value));
     }
