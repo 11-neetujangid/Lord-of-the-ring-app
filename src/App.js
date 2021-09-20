@@ -9,6 +9,7 @@ import thunk from 'redux-thunk';
 import reducer from './Reducers/reducer'
 import MovieQuotes from './Component/MovieQuotes';
 import CharacterQuotes from './Component/CharacterQuotes';
+
 const store = createStore(reducer, applyMiddleware(thunk));
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         </Router>
       </div>
     </Provider >
+    
   );
 }
 

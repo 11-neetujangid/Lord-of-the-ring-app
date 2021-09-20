@@ -3,41 +3,38 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getMovie, getChararcter, getMovieQuotesById, getCharacterQuotesById } from "../Services/api"
 import { setSelected } from "../Actions/action";
 import { useHistory } from "react-router";
+import Searching from "./Searching";
 
 const HomePage = () => {
     const dispatch = useDispatch();
     const history = useHistory();
-    useEffect(() => {
-        dispatch(getMovie());
-    }, []);
-    useEffect(() => {
-        dispatch(getChararcter());
-    }, []);
-    const data = useSelector((state) => state.data);
-    console.log(data);
-    const character = useSelector((state) => state.character);
-    console.log(character);
-    const selected = useSelector((state) => state.selected);
-    console.log(selected);
-
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
 
+    useEffect(() => {
+        dispatch(getMovie(currentPage));
+    }, []);
+    useEffect(() => {
+        dispatch(getChararcter(currentPage));
+    }, []);
+
+    const movieData = useSelector((state) => state.movieData);
+    console.log("movie", movieData);
+    const character = useSelector((state) => state.character);
+    // console.log(character);
+    const selected = useSelector((state) => state.selected);
+    // console.log(selected);
+
     const pages = [];
-    console.log(Math.ceil(data.length / itemsPerPage))
-    for (let i = 1; i <= Math.ceil(data.length / itemsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(movieData.length / itemsPerPage); i++) {
         pages.push(i);
+        console.log(pages)
     }
+    // console.log(pages)
     const pagesforCharacter = []
     for (let i = 1; i <= Math.ceil(character.length / itemsPerPage); i++) {
         pagesforCharacter.push(i);
     }
-
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage
-    const currentItem = data.slice(indexOfFirstItem, indexOfLastItem)
-    const currentItemOfCharacter = character.slice(indexOfFirstItem, indexOfLastItem)
-
     const renderPageNumber = pages.map((number) => {
         return (
             <li key={number} id={number}>
@@ -52,14 +49,16 @@ const HomePage = () => {
             </li>
         )
     })
-    const onClickPageCharacter = (pageNumber) => {
-        console.log((pageNumber));
-        setCurrentPage((pageNumber))
+    const onClickPage = (page) => {
+        setCurrentPage(page);
     }
-    const onClickPage = (pageNumber) => {
-        console.log((pageNumber));
-        setCurrentPage((pageNumber))
+    const onClickPageCharacter = (page) => {
+        setCurrentPage(page);
     }
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage
+    const currentItem = movieData.slice(indexOfFirstItem, indexOfLastItem)
+    const currentItemOfCharacter = character.slice(indexOfFirstItem, indexOfLastItem)
 
     const onSelectMovie = (e) => {
         console.log("select", e.target.value);
@@ -73,16 +72,34 @@ const HomePage = () => {
         dispatch(getCharacterQuotesById(Id))
         history.push(`/character/${Id}/quote`)
     }
-
+    const handlePreviousBtn = () => {
+        pages.map((number) => {
+            setCurrentPage(number - 1);
+        })
+    }
+    const handlePreviousBtn2 = () => {
+        setCurrentPage(currentPage - 1);
+    }
+    const handleNextBtn = () => {
+        pages.map((number) => {
+            setCurrentPage(number);
+        })
+    }
+    const handleNextBtnForCharacter = () => {
+        setCurrentPage(currentPage + 1);
+    }
     return (
         <div>
             <h1>Home Page </h1>
-            <select className="form-select" onChange={(e) => onSelectMovie(e)}>
-                <option select="true"> Select One </option>
-                <option value="movies" number="5">View Movies</option>
-                <option value="characters">View Characters</option>
-            </select>
-            <div><br /><br />
+            <div className="search">
+                <select className="form-select" onChange={(e) => onSelectMovie(e)}>
+                    <option select="true"> Select One </option>
+                    <option value="movies" number="5">View Movies</option>
+                    <option value="characters">View Characters</option>
+                </select>
+            </div>
+            <div><br />
+                <Searching /> <br /><br />
                 <table className="table">
                     <tbody>
                         {
@@ -96,7 +113,6 @@ const HomePage = () => {
                                         <td>{record.academyAwardNominations}</td>
                                         <td>{record.rottenTomatoesScore}</td>
                                         <td><button className="btn btn-outline-primary" onClick={() => onClickMovieQuotes(record._id)}>all quotes</button></td>
-
                                     </tr>
 
                                 )) : ""
@@ -120,9 +136,19 @@ const HomePage = () => {
                 </table>
             </div>
             <div className="center">
-                <ul className="pagination">{renderPageNumber} </ul>
+                <ul className="pagination">
+                    <button className="btn btn-outline-primary" onClick={handlePreviousBtn} >Previous</button>
+                    {renderPageNumber}
+                    <button className="btn btn-outline-primary" onClick={handleNextBtn}>Next</button>
+                </ul>
             </div>
-            <li className="pagination">{renderPageNumberCharacter} </li>
+            <ul className="pagination">
+                <button className="btn btn-outline-primary" onClick={handlePreviousBtn2} >Previous</button>
+                {renderPageNumberCharacter}
+                <button className="btn btn-outline-primary" onClick={handleNextBtnForCharacter}>Next</button>
+            </ul>
+            <button className="btn btn-outline-primary" onClick={handleNextBtnForCharacter}>Next</button>
+
         </div>
     )
 }
